@@ -1,0 +1,33 @@
+1. HEAD
+   - Title: "Fraud Pattern Analyzer"
+   - Basic CSS (clean, minimal)
+
+2. FORM INPUTS
+   - Account age (days) — number
+   - Transaction amount ($) — number
+   - Velocity (txns/hour) — number
+   - New device/IP — yes/no toggle
+   - Location mismatch — yes/no toggle
+   - Account status — dropdown (new/moderate/established)
+   - Button: "Analyze"
+
+3. RESULTS SECTION (hidden until analyzed)
+   - Risk score (big number, color coded: red/yellow/green)
+   - Red flags list (bulleted)
+   - Recommendation text
+   - Explanation paragraph
+
+4. JAVASCRIPT SCORING LOGIC
+   - Score starts at 0
+   - Add points for each risk factor
+   - Account age < 7 days = +30
+   - Amount > $5k = +15
+   - Velocity > 10/hour = +20
+   - New device/IP = +25
+   - Location mismatch = +25
+   - New account status = +10
+   - etc.
+   - Final score = sum of all factors
+   - If score > 70 = HIGH RISK (red)
+   - 40-70 = MEDIUM (yellow)
+   - < 40 = LOW (green)
