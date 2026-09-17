@@ -1,33 +1,125 @@
-1. HEAD
-   - Title: "Fraud Pattern Analyzer"
-   - Basic CSS (clean, minimal)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fraud Pattern Analyzer</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background:#f5f5f5; }
+  h1 { color:#222; text-align:center; }
+  label { display:block; margin-top:15px; font-weight:bold; }
+  input, select { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+  button { margin-top:20px; width:100%; padding:12px; font-size:16px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; }
+  button:hover { background:#1d4ed8; }
+  #results { margin-top:30px; padding:20px; border-radius:8px; display:none; }
+  .risk-high { background:#fee2e2; border:2px solid #dc2626; }
+  .risk-medium { background:#fef9c3; border:2px solid #ca8a04; }
+  .risk-low { background:#dcfce7; border:2px solid #16a34a; }
+  .score { font-size:48px; font-weight:bold; text-align:center; }
+  .flags { margin-top:15px; }
+  .flags li { margin-bottom:5px; }
+  .recommendation { margin-top:15px; font-weight:bold; text-align:center; }
+</style>
+</head>
+<body>
 
-2. FORM INPUTS
-   - Account age (days) — number
-   - Transaction amount ($) — number
-   - Velocity (txns/hour) — number
-   - New device/IP — yes/no toggle
-   - Location mismatch — yes/no toggle
-   - Account status — dropdown (new/moderate/established)
-   - Button: "Analyze"
+<h1>Fraud Pattern Analyzer</h1>
 
-3. RESULTS SECTION (hidden until analyzed)
-   - Risk score (big number, color coded: red/yellow/green)
-   - Red flags list (bulleted)
-   - Recommendation text
-   - Explanation paragraph
+<label>Account Age (days)</label>
+<input type="number" id="accountAge" placeholder="e.g. 3">
 
-4. JAVASCRIPT SCORING LOGIC
-   - Score starts at 0
-   - Add points for each risk factor
-   - Account age < 7 days = +30
-   - Amount > $5k = +15
-   - Velocity > 10/hour = +20
-   - New device/IP = +25
-   - Location mismatch = +25
-   - New account status = +10
-   - etc.
-   - Final score = sum of all factors
-   - If score > 70 = HIGH RISK (red)
-   - 40-70 = MEDIUM (yellow)
-   - < 40 = LOW (green)
+<label>Transaction Amount ($)</label>
+<input type="number" id="amount" placeholder="e.g. 5000">
+
+<label>Velocity (transactions per hour)</label>
+<input type="number" id="velocity" placeholder="e.g. 12">
+
+<label>New Device or IP?</label>
+<select id="newDevice">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select>
+
+<label>Location Mismatch?</label>
+<select id="locationMismatch">
+  <option value="no">No</option>
+  <option value="yes">Yes</option>
+</select>
+
+<label>Account Status</label>
+<select id="accountStatus">
+  <option value="established">Established</option>
+  <option value="moderate">Moderate</option>
+  <option value="new">New</option>
+</select>
+
+<button onclick="analyze()">Analyze</button>
+
+<div id="results">
+  <div class="score" id="scoreDisplay"></div>
+  <div id="riskLabel" style="text-align:center; font-size:20px; font-weight:bold;"></div>
+  <ul class="flags" id="flagsList"></ul>
+  <p class="recommendation" id="recommendation"></p>
+</div>
+
+<script>
+function analyze() {
+  let score = 0;
+  let flags = [];
+
+  const accountAge = parseFloat(document.getElementById('accountAge').value) || 0;
+  const amount = parseFloat(document.getElementById('amount').value) || 0;
+  const velocity = parseFloat(document.getElementById('velocity').value) || 0;
+  const newDevice = document.getElementById('newDevice').value;
+  const locationMismatch = document.getElementById('locationMismatch').value;
+  const accountStatus = document.getElementById('accountStatus').value;
+
+  if (accountAge < 7) { score += 30; flags.push("Account is less than 7 days old"); }
+  if (amount > 5000) { score += 15; flags.push("Transaction amount exceeds $5,000"); }
+  if (velocity > 10) { score += 20; flags.push("High transaction velocity (>10/hour)"); }
+  if (newDevice === "yes") { score += 25; flags.push("New device or IP detected"); }
+  if (locationMismatch === "yes") { score += 25; flags.push("Location does not match account history"); }
+  if (accountStatus === "new") { score += 10; flags.push("Account status is new"); }
+  else if (accountStatus === "moderate") { score += 5; }
+
+  if (score > 100) score = 100;
+
+  const results = document.getElementById('results');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const riskLabel = document.getElementById('riskLabel');
+  const flagsList = document.getElementById('flagsList');
+  const recommendation = document.getElementById('recommendation');
+
+  scoreDisplay.textContent = score;
+  flagsList.innerHTML = "";
+  results.className = "";
+
+  if (score >= 70) {
+    results.classList.add("risk-high");
+    riskLabel.textContent = "HIGH RISK";
+    recommendation.textContent = "Recommendation: Block and investigate immediately.";
+  } else if (score >= 40) {
+    results.classList.add("risk-medium");
+    riskLabel.textContent = "MEDIUM RISK";
+    recommendation.textContent = "Recommendation: Flag for manual review.";
+  } else {
+    results.classList.add("risk-low");
+    riskLabel.textContent = "LOW RISK";
+    recommendation.textContent = "Recommendation: Approve transaction.";
+  }
+
+  if (flags.length === 0) {
+    flagsList.innerHTML = "<li>No red flags detected</li>";
+  } else {
+    flags.forEach(f => {
+      const li = document.createElement('li');
+      li.textContent = f;
+      flagsList.appendChild(li);
+    });
+  }
+
+  results.style.display = "block";
+}
+</script>
+
+</body>
+</html>
